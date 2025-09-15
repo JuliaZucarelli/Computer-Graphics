@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas } from "@react-three/fiber";
 import { Sunflower, Robot, Pinwheel, Car } from './projects';
 
 type Project = 'sunflower' | 'robot' | 'pinwheel' | 'car';

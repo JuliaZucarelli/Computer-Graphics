@@ -1,0 +1,24 @@
+{
+  "name": "computer-graphics",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuliaZucarelli/Computer-Graphics.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JuliaZucarelli/Computer-Graphics/issues"
+  },
+  "homepage": "https://github.com/JuliaZucarelli/Computer-Graphics#readme",
+  "dependencies": {
+    "react": "^19.1.1",
+    "three": "^0.180.0"
+  }
+}
