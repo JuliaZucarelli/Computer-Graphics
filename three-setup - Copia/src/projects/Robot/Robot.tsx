@@ -10,7 +10,8 @@ const Robot = () => {
   vertexShader: `
     varying vec2 vUv;
     void main() {
-      UV= uv;
+      vUv = uv;
+
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
@@ -21,6 +22,7 @@ const Robot = () => {
 
     void main() {
       vec3 color = mix(color1, color2, vUv.y);
+
       gl_FragColor = vec4(color, 1.0);
     }
   `
@@ -33,7 +35,6 @@ const Robot = () => {
     vertexShader: `
       varying vec3 vNormal;
       void main() {
-
         vNormal = normalize(normalMatrix * normal);
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -44,11 +45,9 @@ const Robot = () => {
       uniform vec3 glowColor;
 
       void main() {
-
         // teste com efeito glow
         float intensity = pow(0.9 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
         vec3 color = glowColor * intensity * 2.0;
-
         gl_FragColor = vec4(color, 1.0);
       }
     `
@@ -63,7 +62,7 @@ const Robot = () => {
       varying vec2 vUv;
       varying vec3 vPosition;
       void main() {
-        UV= uv;
+        vUv = uv;
         vPosition = position;
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -76,8 +75,7 @@ const Robot = () => {
       uniform vec3 color2;
 
       void main() {
-
-        // efeito noise -> precisa de mais atributos para criar efeito metálico (ainda não abordado)
+        // noise
         float noise = fract(sin(dot(vPosition.xy, vec2(12.9898, 78.233))) * 43758.5453) * 0.1;
         vec3 color = mix(color1, color2, vUv.y) + noise;
         
