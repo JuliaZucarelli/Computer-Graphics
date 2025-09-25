@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circunferência de Bresenham</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        canvas {
+            display: block;
+            margin: 20px auto;
+            border: 2px solid #333;
+            background: white;
+            cursor: crosshair;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        input[type="range"] {
+            width: 200px;
+            margin: 0 10px;
+        }
+        .info {
+            text-align: center;
+            margin: 10px 0;
+            color: #666;
+        }
+        .coordinates {
+            text-align: center;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Algoritmo de Bresenham para Circunferências</h1>
+        
+        <div class="controls">
+            <label for="radius">Raio: </label>
+            <input type="range" id="radius" min="5" max="100" value="30">
+            <span id="radiusValue">30</span> pixels
+        </div>
+
+        <div class="info">Clique em qualquer lugar do canvas para desenhar uma circunferência</div>
+        <div class="coordinates" id="coords">Coordenadas: (0, 0)</div>
+
+        <canvas id="canvas" width="600" height="400"></canvas>
+
+        <div class="info">
+            Pontos plotados: <span id="pointCount">0</span> |
+            Algoritmo: Bresenham para Circunferências
+        </div>
+    </div>
+
+    <script>
+        class BresenhamCircle {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.centerX = 0;
+                this.centerY = 0;
+                this.radius = 30;
+                this.points = [];
+                
+                this.setupEventListeners();
+                this.updateRadiusDisplay();
+            }
+
+            setupEventListeners() {
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    this.centerX = e.clientX - rect.left;
+                    this.centerY = e.clientY - rect.top;
+                    this.drawCircle();
+                });
+
+                const radiusSlider = document.getElementById('radius');
+                radiusSlider.addEventListener('input', (e) => {
+                    this.radius = parseInt(e.target.value);
+                    this.updateRadiusDisplay();
+                    if (this.centerX !== 0 && this.centerY !== 0) {
+                        this.drawCircle();
+                    }
+                });
+            }
+
+            updateRadiusDisplay() {
+                document.getElementById('radiusValue').textContent = this.radius;
+            }
+
+            drawCircle() {
+                // Limpa o canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Desenha a circunferência usando Bresenham
+                this.points = this.bresenhamCircle(this.centerX, this.centerY, this.radius);
+                
+                // Desenha o centro
+                this.drawCenter();
+                
+                // Desenha os pontos da circunferência
+                this.drawPoints();
+                
+                // Atualiza contador de pontos
+                document.getElementById('pointCount').textContent = this.points.length;
+                
+                // Atualiza coordenadas
+                document.getElementById('coords').textContent = 
+                    `Centro: (${this.centerX}, ${this.centerY}) | Raio: ${this.radius}`;
+            }
+
+            bresenhamCircle(cx, cy, radius) {
+                const points = [];
+                let x = 0;
+                let y = radius;
+                let d = 3 - 2 * radius;
+
+                // Função para adicionar pontos simétricos nos 8 octantes
+                const addPoints = (x, y) => {
+                    points.push({x: cx + x, y: cy + y});
+                    points.push({x: cx - x, y: cy + y});
+                    points.push({x: cx + x, y: cy - y});
+                    points.push({x: cx - x, y: cy - y});
+                    points.push({x: cx + y, y: cy + x});
+                    points.push({x: cx - y, y: cy + x});
+                    points.push({x: cx + y, y: cy - x});
+                    points.push({x: cx - y, y: cy - x});
+                };
+
+                addPoints(x, y);
+
+                while (y >= x) {
+                    x++;
+
+                    if (d > 0) {
+                        y--;
+                        d = d + 4 * (x - y) + 10;
+                    } else {
+                        d = d + 4 * x + 6;
+                    }
+
+                    addPoints(x, y);
+                }
+
+                return points;
+            }
+
+            drawCenter() {
+                this.ctx.fillStyle = 'red';
+                this.ctx.beginPath();
+                this.ctx.arc(this.centerX, this.centerY, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Cruz no centro
+                this.ctx.strokeStyle = 'red';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.centerX - 8, this.centerY);
+                this.ctx.lineTo(this.centerX + 8, this.centerY);
+                this.ctx.moveTo(this.centerX, this.centerY - 8);
+                this.ctx.lineTo(this.centerX, this.centerY + 8);
+                this.ctx.stroke();
+            }
+
+            drawPoints() {
+                this.ctx.fillStyle = 'blue';
+                
+                // Desenha cada ponto da circunferência
+                this.points.forEach(point => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+
+                // Conecta os pontos com linhas para visualização
+                this.ctx.strokeStyle = 'rgba(0, 100, 255, 0.3)';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                
+                this.points.forEach((point, index) => {
+                    if (index === 0) {
+                        this.ctx.moveTo(point.x, point.y);
+                    } else {
+                        this.ctx.lineTo(point.x, point.y);
+                    }
+                });
+                
+                this.ctx.closePath();
+                this.ctx.stroke();
+            }
+        }
+
+        // Inicializa a aplicação quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('canvas');
+            new BresenhamCircle(canvas);
+        });
+    </script>
+</body>
+</html>
